@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.magix = exports.mediaTypes = exports.timeout = exports.makeOptions = void 0;
 /*
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -52,100 +55,89 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMNMNMMMNMMNNMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
-export function sendMessage(id, message, done) {
-  var chat = WAPI.getChat(id);
-  if (chat !== undefined) {
-    try {
-      if (done !== undefined) {
-        chat.sendMessage(message).then(function () {
-          done(true);
-        });
-      } else {
-        chat.sendMessage(message);
-      }
-      return true;
-    } catch (error) {
-      if (done !== undefined) done(false);
-      return false;
+const crypto = require("crypto");
+const hkdf = require("futoin-hkdf");
+const atob = require("atob");
+const makeOptions = (useragentOverride) => ({
+    responseType: 'arraybuffer',
+    headers: {
+        'User-Agent': processUA(useragentOverride),
+        DNT: 1,
+        'Upgrade-Insecure-Requests': 1,
+        origin: 'https://web.whatsapp.com/',
+        referer: 'https://web.whatsapp.com/'
     }
-  }
-  if (done !== undefined) done(false);
-  return false;
-}
-
-// export async function sendMessage(to, content) {
-//   if (typeof content != 'string' || content.length === 0) {
-//     return WAPI.scope(
-//       undefined,
-//       true,
-//       null,
-//       'It is necessary to write a text!'
-//     );
-//   }
-//   if (typeof to != 'string' || to.length === 0) {
-//     return WAPI.scope(to, true, 404, 'It is necessary to number');
-//   }
-
-//   let chat = await WAPI.sendExist(to);
-
-//   if (chat && chat.status != 404 && chat.id) {
-//     const m = { type: 'sendText', text: content };
-//     const newMsgId = await window.WAPI.getNewMessageId(chat.id._serialized);
-//     const fromwWid = await Store.MaybeMeUser.getMaybeMeUser();
-
-//     let inChat = await WAPI.getchatId(chat.id).catch(() => {
-//       return WAPI.scope(chat.id, true, 404, 'Error to number ' + to);
-//     });
-
-//     if (inChat) {
-//       chat.lastReceivedKey && chat.lastReceivedKey._serialized
-//         ? (chat.lastReceivedKey._serialized = inChat._serialized)
-//         : '';
-//       chat.lastReceivedKey && chat.lastReceivedKey.id
-//         ? (chat.lastReceivedKey.id = inChat.id)
-//         : '';
-//     }
-
-//     if (!newMsgId) {
-//       return WAPI.scope(to, true, 404, 'Error to newId');
-//     }
-
-//     const message = {
-//       id: newMsgId,
-//       ack: 0,
-//       body: content,
-//       from: fromwWid,
-//       to: chat.id,
-//       local: !0,
-//       self: 'out',
-//       t: parseInt(new Date().getTime() / 1000),
-//       isNewMsg: !0,
-//       type: 'chat'
-//     };
-
-//     try {
-//       var result = (
-//         await Promise.all(window.Store.addAndSendMsgToChat(chat, message))
-//       )[1];
-
-//       if (result === 'success' || result === 'OK') {
-//         let obj = WAPI.scope(newMsgId, false, result, content);
-//         Object.assign(obj, m);
-//         return obj;
-//       }
-//     } catch (e) {
-//       let obj = WAPI.scope(newMsgId, true, result, 'The message was not sent');
-//       Object.assign(obj, m);
-//       return obj;
-//     }
-
-//     let obj = WAPI.scope(newMsgId, true, result, content);
-//     Object.assign(obj, m);
-//     return obj;
-//   } else {
-//     if (!chat.erro) {
-//       chat.erro = true;
-//     }
-//     return chat;
-//   }
-// }
+});
+exports.makeOptions = makeOptions;
+const timeout = (ms) => new Promise((res) => setTimeout(res, ms));
+exports.timeout = timeout;
+exports.mediaTypes = {
+    IMAGE: 'Image',
+    VIDEO: 'Video',
+    AUDIO: 'Audio',
+    PTT: 'Audio',
+    DOCUMENT: 'Document',
+    STICKER: 'Image'
+};
+const processUA = (userAgent) => {
+    let ua = userAgent ||
+        'WhatsApp/2.2108.8 Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36';
+    if (!ua.includes('WhatsApp'))
+        ua = 'WhatsApp/2.2108.8 ' + ua;
+    return ua;
+};
+const magix = (fileData, mediaKeyBase64, mediaType, expectedSize) => {
+    const encodedHex = fileData.toString('hex');
+    const encodedBytes = hexToBytes(encodedHex);
+    const mediaKeyBytes = base64ToBytes(mediaKeyBase64);
+    const info = `WhatsApp ${exports.mediaTypes[mediaType.toUpperCase()]} Keys`;
+    const hash = 'sha256';
+    const salt = new Uint8Array(32);
+    const expandedSize = 112;
+    const mediaKeyExpanded = hkdf(mediaKeyBytes, expandedSize, {
+        salt,
+        info,
+        hash
+    });
+    const iv = mediaKeyExpanded.slice(0, 16);
+    const cipherKey = mediaKeyExpanded.slice(16, 48);
+    const decipher = crypto.createDecipheriv('aes-256-cbc', cipherKey, iv);
+    const decoded = decipher.update(encodedBytes);
+    const mediaDataBuffer = expectedSize
+        ? fixPadding(decoded, expectedSize)
+        : decoded;
+    return mediaDataBuffer;
+};
+exports.magix = magix;
+const fixPadding = (data, expectedSize) => {
+    let padding = (16 - (expectedSize % 16)) & 0xf;
+    if (padding > 0) {
+        if (expectedSize + padding == data.length) {
+            //  console.log(`trimmed: ${padding} bytes`);
+            data = data.slice(0, data.length - padding);
+        }
+        else if (data.length + padding == expectedSize) {
+            // console.log(`adding: ${padding} bytes`);
+            let arr = new Uint16Array(padding).map((b) => padding);
+            data = Buffer.concat([data, Buffer.from(arr)]);
+        }
+    }
+    //@ts-ignore
+    return Buffer.from(data, 'utf-8');
+};
+const hexToBytes = (hexStr) => {
+    const intArray = [];
+    for (let i = 0; i < hexStr.length; i += 2) {
+        intArray.push(parseInt(hexStr.substr(i, 2), 16));
+    }
+    return new Uint8Array(intArray);
+};
+const base64ToBytes = (base64Str) => {
+    const binaryStr = atob(base64Str);
+    const byteArray = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+        byteArray[i] = binaryStr.charCodeAt(i);
+    }
+    return byteArray;
+};
+//# sourceMappingURL=decrypt.js.map

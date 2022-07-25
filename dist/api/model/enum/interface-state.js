@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.InterfaceState = void 0;
 /*
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -52,100 +55,39 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMNMNMMMNMMNNMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
-export function sendMessage(id, message, done) {
-  var chat = WAPI.getChat(id);
-  if (chat !== undefined) {
-    try {
-      if (done !== undefined) {
-        chat.sendMessage(message).then(function () {
-          done(true);
-        });
-      } else {
-        chat.sendMessage(message);
-      }
-      return true;
-    } catch (error) {
-      if (done !== undefined) done(false);
-      return false;
-    }
-  }
-  if (done !== undefined) done(false);
-  return false;
-}
-
-// export async function sendMessage(to, content) {
-//   if (typeof content != 'string' || content.length === 0) {
-//     return WAPI.scope(
-//       undefined,
-//       true,
-//       null,
-//       'It is necessary to write a text!'
-//     );
-//   }
-//   if (typeof to != 'string' || to.length === 0) {
-//     return WAPI.scope(to, true, 404, 'It is necessary to number');
-//   }
-
-//   let chat = await WAPI.sendExist(to);
-
-//   if (chat && chat.status != 404 && chat.id) {
-//     const m = { type: 'sendText', text: content };
-//     const newMsgId = await window.WAPI.getNewMessageId(chat.id._serialized);
-//     const fromwWid = await Store.MaybeMeUser.getMaybeMeUser();
-
-//     let inChat = await WAPI.getchatId(chat.id).catch(() => {
-//       return WAPI.scope(chat.id, true, 404, 'Error to number ' + to);
-//     });
-
-//     if (inChat) {
-//       chat.lastReceivedKey && chat.lastReceivedKey._serialized
-//         ? (chat.lastReceivedKey._serialized = inChat._serialized)
-//         : '';
-//       chat.lastReceivedKey && chat.lastReceivedKey.id
-//         ? (chat.lastReceivedKey.id = inChat.id)
-//         : '';
-//     }
-
-//     if (!newMsgId) {
-//       return WAPI.scope(to, true, 404, 'Error to newId');
-//     }
-
-//     const message = {
-//       id: newMsgId,
-//       ack: 0,
-//       body: content,
-//       from: fromwWid,
-//       to: chat.id,
-//       local: !0,
-//       self: 'out',
-//       t: parseInt(new Date().getTime() / 1000),
-//       isNewMsg: !0,
-//       type: 'chat'
-//     };
-
-//     try {
-//       var result = (
-//         await Promise.all(window.Store.addAndSendMsgToChat(chat, message))
-//       )[1];
-
-//       if (result === 'success' || result === 'OK') {
-//         let obj = WAPI.scope(newMsgId, false, result, content);
-//         Object.assign(obj, m);
-//         return obj;
-//       }
-//     } catch (e) {
-//       let obj = WAPI.scope(newMsgId, true, result, 'The message was not sent');
-//       Object.assign(obj, m);
-//       return obj;
-//     }
-
-//     let obj = WAPI.scope(newMsgId, true, result, content);
-//     Object.assign(obj, m);
-//     return obj;
-//   } else {
-//     if (!chat.erro) {
-//       chat.erro = true;
-//     }
-//     return chat;
-//   }
-// }
+var InterfaceState;
+(function (InterfaceState) {
+    /**
+     * When there are no internet.
+     */
+    InterfaceState["OFFLINE"] = "OFFLINE";
+    /**
+     * When the whatsapp web page is loading.
+     */
+    InterfaceState["OPENING"] = "OPENING";
+    /**
+     * When the whatsapp web is connecting to smartphone after QR code scan.
+     */
+    InterfaceState["PAIRING"] = "PAIRING";
+    /**
+     * When the whatsapp web is syncing messages with smartphone.
+     */
+    InterfaceState["SYNCING"] = "SYNCING";
+    /**
+     * When the whatsapp web is syncing messages with smartphone after a disconnection.
+     */
+    InterfaceState["RESUMING"] = "RESUMING";
+    /**
+     * When the whatsapp web is connecting to whatsapp server.
+     */
+    InterfaceState["CONNECTING"] = "CONNECTING";
+    /**
+     * When the whatsapp web is ready.
+     */
+    InterfaceState["NORMAL"] = "NORMAL";
+    /**
+     * When the whatsapp web couldn't connect to smartphone.
+     */
+    InterfaceState["WITHOUT_INTERNET"] = "WITHOUT INTERNET";
+})(InterfaceState = exports.InterfaceState || (exports.InterfaceState = {}));
+//# sourceMappingURL=interface-state.js.map

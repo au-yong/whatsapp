@@ -1,3 +1,20 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MediaType = exports.MessageType = exports.SocketStream = exports.SocketState = exports.GroupNotificationType = exports.GroupSettings = exports.GroupChangeEvent = exports.ChatState = exports.AckType = void 0;
 /*
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -52,100 +69,22 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMNMNMMMNMMNNMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
-export function sendMessage(id, message, done) {
-  var chat = WAPI.getChat(id);
-  if (chat !== undefined) {
-    try {
-      if (done !== undefined) {
-        chat.sendMessage(message).then(function () {
-          done(true);
-        });
-      } else {
-        chat.sendMessage(message);
-      }
-      return true;
-    } catch (error) {
-      if (done !== undefined) done(false);
-      return false;
-    }
-  }
-  if (done !== undefined) done(false);
-  return false;
-}
-
-// export async function sendMessage(to, content) {
-//   if (typeof content != 'string' || content.length === 0) {
-//     return WAPI.scope(
-//       undefined,
-//       true,
-//       null,
-//       'It is necessary to write a text!'
-//     );
-//   }
-//   if (typeof to != 'string' || to.length === 0) {
-//     return WAPI.scope(to, true, 404, 'It is necessary to number');
-//   }
-
-//   let chat = await WAPI.sendExist(to);
-
-//   if (chat && chat.status != 404 && chat.id) {
-//     const m = { type: 'sendText', text: content };
-//     const newMsgId = await window.WAPI.getNewMessageId(chat.id._serialized);
-//     const fromwWid = await Store.MaybeMeUser.getMaybeMeUser();
-
-//     let inChat = await WAPI.getchatId(chat.id).catch(() => {
-//       return WAPI.scope(chat.id, true, 404, 'Error to number ' + to);
-//     });
-
-//     if (inChat) {
-//       chat.lastReceivedKey && chat.lastReceivedKey._serialized
-//         ? (chat.lastReceivedKey._serialized = inChat._serialized)
-//         : '';
-//       chat.lastReceivedKey && chat.lastReceivedKey.id
-//         ? (chat.lastReceivedKey.id = inChat.id)
-//         : '';
-//     }
-
-//     if (!newMsgId) {
-//       return WAPI.scope(to, true, 404, 'Error to newId');
-//     }
-
-//     const message = {
-//       id: newMsgId,
-//       ack: 0,
-//       body: content,
-//       from: fromwWid,
-//       to: chat.id,
-//       local: !0,
-//       self: 'out',
-//       t: parseInt(new Date().getTime() / 1000),
-//       isNewMsg: !0,
-//       type: 'chat'
-//     };
-
-//     try {
-//       var result = (
-//         await Promise.all(window.Store.addAndSendMsgToChat(chat, message))
-//       )[1];
-
-//       if (result === 'success' || result === 'OK') {
-//         let obj = WAPI.scope(newMsgId, false, result, content);
-//         Object.assign(obj, m);
-//         return obj;
-//       }
-//     } catch (e) {
-//       let obj = WAPI.scope(newMsgId, true, result, 'The message was not sent');
-//       Object.assign(obj, m);
-//       return obj;
-//     }
-
-//     let obj = WAPI.scope(newMsgId, true, result, content);
-//     Object.assign(obj, m);
-//     return obj;
-//   } else {
-//     if (!chat.erro) {
-//       chat.erro = true;
-//     }
-//     return chat;
-//   }
-// }
+var ack_type_1 = require("./ack-type");
+Object.defineProperty(exports, "AckType", { enumerable: true, get: function () { return ack_type_1.AckType; } });
+var chat_state_1 = require("./chat-state");
+Object.defineProperty(exports, "ChatState", { enumerable: true, get: function () { return chat_state_1.ChatState; } });
+var group_change_event_1 = require("./group-change-event");
+Object.defineProperty(exports, "GroupChangeEvent", { enumerable: true, get: function () { return group_change_event_1.GroupChangeEvent; } });
+var group_settings_1 = require("./group-settings");
+Object.defineProperty(exports, "GroupSettings", { enumerable: true, get: function () { return group_settings_1.GroupSettings; } });
+var group_notification_type_1 = require("./group-notification-type");
+Object.defineProperty(exports, "GroupNotificationType", { enumerable: true, get: function () { return group_notification_type_1.GroupNotificationType; } });
+var socket_state_1 = require("./socket-state");
+Object.defineProperty(exports, "SocketState", { enumerable: true, get: function () { return socket_state_1.SocketState; } });
+Object.defineProperty(exports, "SocketStream", { enumerable: true, get: function () { return socket_state_1.SocketStream; } });
+var message_type_1 = require("./message-type");
+Object.defineProperty(exports, "MessageType", { enumerable: true, get: function () { return message_type_1.MessageType; } });
+Object.defineProperty(exports, "MediaType", { enumerable: true, get: function () { return message_type_1.MediaType; } });
+__exportStar(require("./interface-mode"), exports);
+__exportStar(require("./interface-state"), exports);
+//# sourceMappingURL=index.js.map

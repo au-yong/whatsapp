@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.defaultLogger = exports.formatLabelSession = void 0;
 /*
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -52,100 +55,28 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMNMNMMMNMMNNMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
-export function sendMessage(id, message, done) {
-  var chat = WAPI.getChat(id);
-  if (chat !== undefined) {
-    try {
-      if (done !== undefined) {
-        chat.sendMessage(message).then(function () {
-          done(true);
-        });
-      } else {
-        chat.sendMessage(message);
-      }
-      return true;
-    } catch (error) {
-      if (done !== undefined) done(false);
-      return false;
+const winston_1 = require("winston");
+exports.formatLabelSession = (0, winston_1.format)((info, opts) => {
+    const parts = [];
+    if (info.session) {
+        parts.push(info.session);
+        delete info.session;
     }
-  }
-  if (done !== undefined) done(false);
-  return false;
-}
-
-// export async function sendMessage(to, content) {
-//   if (typeof content != 'string' || content.length === 0) {
-//     return WAPI.scope(
-//       undefined,
-//       true,
-//       null,
-//       'It is necessary to write a text!'
-//     );
-//   }
-//   if (typeof to != 'string' || to.length === 0) {
-//     return WAPI.scope(to, true, 404, 'It is necessary to number');
-//   }
-
-//   let chat = await WAPI.sendExist(to);
-
-//   if (chat && chat.status != 404 && chat.id) {
-//     const m = { type: 'sendText', text: content };
-//     const newMsgId = await window.WAPI.getNewMessageId(chat.id._serialized);
-//     const fromwWid = await Store.MaybeMeUser.getMaybeMeUser();
-
-//     let inChat = await WAPI.getchatId(chat.id).catch(() => {
-//       return WAPI.scope(chat.id, true, 404, 'Error to number ' + to);
-//     });
-
-//     if (inChat) {
-//       chat.lastReceivedKey && chat.lastReceivedKey._serialized
-//         ? (chat.lastReceivedKey._serialized = inChat._serialized)
-//         : '';
-//       chat.lastReceivedKey && chat.lastReceivedKey.id
-//         ? (chat.lastReceivedKey.id = inChat.id)
-//         : '';
-//     }
-
-//     if (!newMsgId) {
-//       return WAPI.scope(to, true, 404, 'Error to newId');
-//     }
-
-//     const message = {
-//       id: newMsgId,
-//       ack: 0,
-//       body: content,
-//       from: fromwWid,
-//       to: chat.id,
-//       local: !0,
-//       self: 'out',
-//       t: parseInt(new Date().getTime() / 1000),
-//       isNewMsg: !0,
-//       type: 'chat'
-//     };
-
-//     try {
-//       var result = (
-//         await Promise.all(window.Store.addAndSendMsgToChat(chat, message))
-//       )[1];
-
-//       if (result === 'success' || result === 'OK') {
-//         let obj = WAPI.scope(newMsgId, false, result, content);
-//         Object.assign(obj, m);
-//         return obj;
-//       }
-//     } catch (e) {
-//       let obj = WAPI.scope(newMsgId, true, result, 'The message was not sent');
-//       Object.assign(obj, m);
-//       return obj;
-//     }
-
-//     let obj = WAPI.scope(newMsgId, true, result, content);
-//     Object.assign(obj, m);
-//     return obj;
-//   } else {
-//     if (!chat.erro) {
-//       chat.erro = true;
-//     }
-//     return chat;
-//   }
-// }
+    if (info.type) {
+        parts.push(info.type);
+        delete info.type;
+    }
+    if (parts.length) {
+        let prefix = parts.join(':');
+        info.message = `[${prefix}] ${info.message}`;
+    }
+    return info;
+});
+exports.defaultLogger = (0, winston_1.createLogger)({
+    level: 'info',
+    levels: winston_1.config.npm.levels,
+    format: winston_1.format.combine((0, exports.formatLabelSession)(), winston_1.format.colorize(), winston_1.format.padLevels(), winston_1.format.simple()),
+    //   defaultMeta: { service: 'venon-bot' },
+    transports: [new winston_1.transports.Console()]
+});
+//# sourceMappingURL=logger.js.map

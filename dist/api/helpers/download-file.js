@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.downloadFileToBase64 = void 0;
 /*
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -52,100 +55,38 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMNMNMMMNMMNNMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
-export function sendMessage(id, message, done) {
-  var chat = WAPI.getChat(id);
-  if (chat !== undefined) {
-    try {
-      if (done !== undefined) {
-        chat.sendMessage(message).then(function () {
-          done(true);
-        });
-      } else {
-        chat.sendMessage(message);
-      }
-      return true;
-    } catch (error) {
-      if (done !== undefined) done(false);
-      return false;
+const axios_1 = require("axios");
+async function downloadFileToBase64(_path, _mines = []) {
+    if (!Array.isArray(_mines)) {
+        console.error(`set mines string array, not "${typeof _mines}" `);
+        return false;
     }
-  }
-  if (done !== undefined) done(false);
-  return false;
+    const reHttp = /^https?:/;
+    if (!reHttp.test(_path)) {
+        return false;
+    }
+    try {
+        const response = await axios_1.default.get(_path, {
+            responseType: 'arraybuffer'
+        });
+        const mimeType = response.headers['content-type'];
+        if (_mines.length) {
+            const isValidMime = _mines.some((m) => {
+                if (typeof m === 'string') {
+                    return m === mimeType;
+                }
+                return m.exec(mimeType);
+            });
+            if (!isValidMime) {
+                console.error(`Content-Type "${mimeType}" of ${_path} is not allowed`);
+                return false;
+            }
+        }
+        const content = Buffer.from(response.data, 'binary').toString('base64');
+        return `data:${mimeType};base64,${content}`;
+    }
+    catch (error) { }
+    return false;
 }
-
-// export async function sendMessage(to, content) {
-//   if (typeof content != 'string' || content.length === 0) {
-//     return WAPI.scope(
-//       undefined,
-//       true,
-//       null,
-//       'It is necessary to write a text!'
-//     );
-//   }
-//   if (typeof to != 'string' || to.length === 0) {
-//     return WAPI.scope(to, true, 404, 'It is necessary to number');
-//   }
-
-//   let chat = await WAPI.sendExist(to);
-
-//   if (chat && chat.status != 404 && chat.id) {
-//     const m = { type: 'sendText', text: content };
-//     const newMsgId = await window.WAPI.getNewMessageId(chat.id._serialized);
-//     const fromwWid = await Store.MaybeMeUser.getMaybeMeUser();
-
-//     let inChat = await WAPI.getchatId(chat.id).catch(() => {
-//       return WAPI.scope(chat.id, true, 404, 'Error to number ' + to);
-//     });
-
-//     if (inChat) {
-//       chat.lastReceivedKey && chat.lastReceivedKey._serialized
-//         ? (chat.lastReceivedKey._serialized = inChat._serialized)
-//         : '';
-//       chat.lastReceivedKey && chat.lastReceivedKey.id
-//         ? (chat.lastReceivedKey.id = inChat.id)
-//         : '';
-//     }
-
-//     if (!newMsgId) {
-//       return WAPI.scope(to, true, 404, 'Error to newId');
-//     }
-
-//     const message = {
-//       id: newMsgId,
-//       ack: 0,
-//       body: content,
-//       from: fromwWid,
-//       to: chat.id,
-//       local: !0,
-//       self: 'out',
-//       t: parseInt(new Date().getTime() / 1000),
-//       isNewMsg: !0,
-//       type: 'chat'
-//     };
-
-//     try {
-//       var result = (
-//         await Promise.all(window.Store.addAndSendMsgToChat(chat, message))
-//       )[1];
-
-//       if (result === 'success' || result === 'OK') {
-//         let obj = WAPI.scope(newMsgId, false, result, content);
-//         Object.assign(obj, m);
-//         return obj;
-//       }
-//     } catch (e) {
-//       let obj = WAPI.scope(newMsgId, true, result, 'The message was not sent');
-//       Object.assign(obj, m);
-//       return obj;
-//     }
-
-//     let obj = WAPI.scope(newMsgId, true, result, content);
-//     Object.assign(obj, m);
-//     return obj;
-//   } else {
-//     if (!chat.erro) {
-//       chat.erro = true;
-//     }
-//     return chat;
-//   }
-// }
+exports.downloadFileToBase64 = downloadFileToBase64;
+//# sourceMappingURL=download-file.js.map

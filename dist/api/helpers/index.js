@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkingCloses = exports.callbackWile = exports.deleteFiles = exports.scrapeDeleteToken = exports.scrapeDesconnected = exports.scrapeLogin = exports.scrapeImg = exports.resizeImg = exports.stickerSelect = exports.downloadFileToBase64 = exports.base64MimeType = exports.fileToBase64 = void 0;
 /*
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -52,100 +55,27 @@ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNMMNMNMMMNMMNNMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 */
-export function sendMessage(id, message, done) {
-  var chat = WAPI.getChat(id);
-  if (chat !== undefined) {
-    try {
-      if (done !== undefined) {
-        chat.sendMessage(message).then(function () {
-          done(true);
-        });
-      } else {
-        chat.sendMessage(message);
-      }
-      return true;
-    } catch (error) {
-      if (done !== undefined) done(false);
-      return false;
-    }
-  }
-  if (done !== undefined) done(false);
-  return false;
-}
-
-// export async function sendMessage(to, content) {
-//   if (typeof content != 'string' || content.length === 0) {
-//     return WAPI.scope(
-//       undefined,
-//       true,
-//       null,
-//       'It is necessary to write a text!'
-//     );
-//   }
-//   if (typeof to != 'string' || to.length === 0) {
-//     return WAPI.scope(to, true, 404, 'It is necessary to number');
-//   }
-
-//   let chat = await WAPI.sendExist(to);
-
-//   if (chat && chat.status != 404 && chat.id) {
-//     const m = { type: 'sendText', text: content };
-//     const newMsgId = await window.WAPI.getNewMessageId(chat.id._serialized);
-//     const fromwWid = await Store.MaybeMeUser.getMaybeMeUser();
-
-//     let inChat = await WAPI.getchatId(chat.id).catch(() => {
-//       return WAPI.scope(chat.id, true, 404, 'Error to number ' + to);
-//     });
-
-//     if (inChat) {
-//       chat.lastReceivedKey && chat.lastReceivedKey._serialized
-//         ? (chat.lastReceivedKey._serialized = inChat._serialized)
-//         : '';
-//       chat.lastReceivedKey && chat.lastReceivedKey.id
-//         ? (chat.lastReceivedKey.id = inChat.id)
-//         : '';
-//     }
-
-//     if (!newMsgId) {
-//       return WAPI.scope(to, true, 404, 'Error to newId');
-//     }
-
-//     const message = {
-//       id: newMsgId,
-//       ack: 0,
-//       body: content,
-//       from: fromwWid,
-//       to: chat.id,
-//       local: !0,
-//       self: 'out',
-//       t: parseInt(new Date().getTime() / 1000),
-//       isNewMsg: !0,
-//       type: 'chat'
-//     };
-
-//     try {
-//       var result = (
-//         await Promise.all(window.Store.addAndSendMsgToChat(chat, message))
-//       )[1];
-
-//       if (result === 'success' || result === 'OK') {
-//         let obj = WAPI.scope(newMsgId, false, result, content);
-//         Object.assign(obj, m);
-//         return obj;
-//       }
-//     } catch (e) {
-//       let obj = WAPI.scope(newMsgId, true, result, 'The message was not sent');
-//       Object.assign(obj, m);
-//       return obj;
-//     }
-
-//     let obj = WAPI.scope(newMsgId, true, result, content);
-//     Object.assign(obj, m);
-//     return obj;
-//   } else {
-//     if (!chat.erro) {
-//       chat.erro = true;
-//     }
-//     return chat;
-//   }
-// }
+var file_to_base64_1 = require("./file-to-base64");
+Object.defineProperty(exports, "fileToBase64", { enumerable: true, get: function () { return file_to_base64_1.fileToBase64; } });
+var base64_mimetype_1 = require("./base64-mimetype");
+Object.defineProperty(exports, "base64MimeType", { enumerable: true, get: function () { return base64_mimetype_1.base64MimeType; } });
+var download_file_1 = require("./download-file");
+Object.defineProperty(exports, "downloadFileToBase64", { enumerable: true, get: function () { return download_file_1.downloadFileToBase64; } });
+var select_sticker_1 = require("./select-sticker");
+Object.defineProperty(exports, "stickerSelect", { enumerable: true, get: function () { return select_sticker_1.stickerSelect; } });
+Object.defineProperty(exports, "resizeImg", { enumerable: true, get: function () { return select_sticker_1.resizeImg; } });
+var scrape_img_qr_1 = require("./scrape-img-qr");
+Object.defineProperty(exports, "scrapeImg", { enumerable: true, get: function () { return scrape_img_qr_1.scrapeImg; } });
+var scrape_login_1 = require("./scrape-login");
+Object.defineProperty(exports, "scrapeLogin", { enumerable: true, get: function () { return scrape_login_1.scrapeLogin; } });
+var scrape_desconnect_1 = require("./scrape-desconnect");
+Object.defineProperty(exports, "scrapeDesconnected", { enumerable: true, get: function () { return scrape_desconnect_1.scrapeDesconnected; } });
+var scrape_deletetoken_1 = require("./scrape-deletetoken");
+Object.defineProperty(exports, "scrapeDeleteToken", { enumerable: true, get: function () { return scrape_deletetoken_1.scrapeDeleteToken; } });
+var delete_file_1 = require("./delete-file");
+Object.defineProperty(exports, "deleteFiles", { enumerable: true, get: function () { return delete_file_1.deleteFiles; } });
+var callback_wile_1 = require("./callback-wile");
+Object.defineProperty(exports, "callbackWile", { enumerable: true, get: function () { return callback_wile_1.callbackWile; } });
+var closes_browser_1 = require("./closes-browser");
+Object.defineProperty(exports, "checkingCloses", { enumerable: true, get: function () { return closes_browser_1.checkingCloses; } });
+//# sourceMappingURL=index.js.map
