@@ -144,7 +144,7 @@ export class SenderLayer extends ListenerLayer {
       }
       const result = await this.page.evaluate(
         ({ to, content }) => {
-          return WAPI.sendMessage(to, content);
+          return WAPI.sendMessage2(to, content);
         },
         { to, content }
       );
